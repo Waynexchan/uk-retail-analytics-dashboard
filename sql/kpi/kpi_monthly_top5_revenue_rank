@@ -1,0 +1,31 @@
+WITH monthly_invoice_base AS (
+SELECT  
+  month,
+  Invoice AS invoice,
+  ANY_VALUE(NULLIF(customer_id, 'UNKNOWN')) AS customer_id,
+  SUM(revenue) AS invoice_revenue,
+  SUM(Quantity) AS invoice_units
+
+FROM `uk-retail-project.UkRetail.fact_sales_net` 
+GROUP BY 1, 2
+),
+ ranked AS (
+SELECT
+  month,
+  invoice,
+  customer_id,
+  invoice_revenue,
+  SAFE_DIVIDE(invoice_revenue, SUM(invoice_revenue) OVER(PARTITION BY month)) AS invoice_revenue_share,
+  ROW_NUMBER() OVER(PARTITION BY month ORDER BY invoice_revenue DESC) AS invoice_rank
+FROM monthly_invoice_base
+)
+SELECT
+  FORMAT_DATE('%Y-%m', month) AS month_label,
+  invoice,
+  customer_id,
+  invoice_revenue,
+  invoice_revenue_share,
+  invoice_rank,
+  SUM(invoice_revenue_share) OVER(PARTITION BY month ORDER BY invoice_revenue DESC) AS cumulative_share
+FROM ranked
+QUALIFY invoice_rank <= 5
