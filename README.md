@@ -33,6 +33,7 @@ Customer revenue distribution and repeat purchase behavior.
 - Repeat purchase rate averages **24%**.
 
 ## Dashboard Preview
+![Executive Summary](images/executive_summary.png)
 
 ![Overview](images/overview.png)
 
