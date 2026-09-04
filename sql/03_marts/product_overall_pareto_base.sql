@@ -1,3 +1,19 @@
+-- ============================================================
+-- Query: product_overall_pareto_base
+--
+-- Purpose:
+-- Rank products by revenue and calculate cumulative revenue
+-- share for full-period Pareto analysis.
+--
+-- Grain:
+-- One row per product.
+--
+-- Scope:
+-- Full analysis period; not affected by Power BI month filters.
+--
+-- Used by:
+-- Power BI - Product Analysis page
+-- ============================================================
 WITH prod AS (
 SELECT  
   f.StockCode,

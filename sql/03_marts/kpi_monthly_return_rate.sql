@@ -1,3 +1,19 @@
+-- ============================================================
+-- Query: kpi_monthly_return_rate
+--
+-- Purpose:
+-- Calculate monthly revenue and order-based return metrics.
+--
+-- Grain:
+-- One row per calendar month.
+--
+-- Source:
+-- UkRetail.fact_sales_line
+--
+-- Used by:
+-- Power BI - Sales Overview page
+-- ============================================================
+
 WITH return_base AS (
 SELECT  
   FORMAT_DATE('%Y-%m', month) AS month,

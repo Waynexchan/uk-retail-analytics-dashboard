@@ -1,3 +1,19 @@
+-- ============================================================
+-- Query: customer_overall_rank_base
+--
+-- Purpose:
+-- Rank customers by revenue and calculate cumulative revenue
+-- share for full-period Pareto analysis.
+--
+-- Grain:
+-- One row per identified customer.
+--
+-- Scope:
+-- Full analysis period; not affected by Power BI month filters.
+--
+-- Used by:
+-- Power BI - Customer Analysis page
+-- ============================================================
 WITH customer_base AS (
 
 SELECT  

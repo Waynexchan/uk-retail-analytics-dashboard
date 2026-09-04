@@ -1,3 +1,19 @@
+-- ============================================================
+-- Query: kpi_monthly_repeat_rate
+--
+-- Purpose:
+-- Calculate the monthly proportion of customers placing
+-- two or more orders in the same month.
+--
+-- Grain:
+-- One row per calendar month.
+--
+-- Source:
+-- UkRetail.fact_sales_net
+--
+-- Used by:
+-- Power BI - Customer Analysis page
+-- ============================================================
 WITH month_base AS (
 SELECT 
   FORMAT_DATE('%Y-%m', month) AS month,
