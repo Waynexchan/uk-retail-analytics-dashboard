@@ -1,150 +1,303 @@
 # UK Retail Analytics Dashboard
 
-## Project Title
+## Commercial Performance Case Study
 
-UK Retail Analytics Dashboard - Commercial Performance Case Study
+An end-to-end retail analytics project using Google BigQuery, SQL, Power BI, DAX, and Power Query to transform transactional data into management-ready commercial insights.
+
+The analysis covers approximately **£21.0M in revenue, 40.1K orders, and 5.9K customers**, with a focus on sales performance, seasonality, product concentration, customer behaviour, repeat purchasing, and returns.
+
+---
 
 ## Business Problem
 
-This project analyses UK online retail transactions to help a commercial team understand revenue performance, customer behaviour, product concentration, and returns. The objective is to turn transactional sales data into a management-ready Power BI dashboard that supports trading, merchandising, and customer retention decisions.
+The objective of this project is to help a commercial team understand:
 
-The dashboard is positioned as a junior data analyst / commercial analyst portfolio project, with SQL-based data preparation in BigQuery and a Power BI reporting layer.
+- How sales performance changes over time.
+- Whether demand exhibits meaningful seasonal patterns.
+- Which products and customers contribute the greatest share of revenue.
+- How concentrated the business is across its product and customer base.
+- How frequently customers make repeat purchases within the same month.
+- How return behaviour changes over time.
 
-## Key Questions Answered
+The final output is an interactive four-page Power BI dashboard designed to translate transactional data into actionable commercial insights and recommendations.
 
-- How are revenue, orders, customers, units, and average order value changing month by month?
-- Which products contribute the largest share of revenue?
-- How concentrated is revenue across products and customers?
-- What proportion of customers place repeat orders within the same month?
-- What is the monthly return rate by revenue and order count?
-- Which invoice activity may represent higher-value B2B behaviour?
+---
+
+## Key Questions
+
+- How are revenue, orders, customers, units, and average order value changing over time?
+- Which products generate the most revenue?
+- How concentrated is product revenue?
+- Which customers generate the most revenue?
+- How concentrated is customer revenue?
+- What proportion of customers place multiple orders within the same month?
+- How does return activity vary over time?
+- What commercial actions can be supported by these findings?
+
+---
 
 ## Dataset Overview
 
-- Source: Online retail transaction data loaded into Google BigQuery.
-- Grain: One row per invoice line in the cleaned sales-line export.
-- Date range in exported fact file: 2009-12-01 to 2011-12-09.
-- Exported fact line count: 1,061,164 rows.
-- Main fields used: invoice number, invoice date, customer ID, country, stock code, product description, quantity, price, revenue, return flag, and valid-sale flag.
-- Dashboard extract files are stored in `view/`.
-- Power BI report file is stored in `dashboard/uk_online_retail.pbix`.
+- **Source:** Online retail transaction dataset loaded into Google BigQuery.
+- **Date range:** 1 December 2009 to 9 December 2011.
+- **Transaction lines:** 1,061,164 rows in the exported sales-line fact dataset.
+- **Main fields:** Invoice, Invoice Date, Customer ID, Country, Stock Code, Product Description, Quantity, Price, Revenue, Return Flag, and Valid Sale Flag.
+- **Reporting layer:** SQL-generated analytical tables exported for Power BI.
+- **Power BI report:** `powerbi/uk_online_retail.pbix`
 
-## Tools Used
+The raw source dataset is not included in the repository.
 
-- Google BigQuery SQL for cleaning, modelling, KPI views, and analytical queries.
-- Power BI for dashboard design, KPI reporting, and visual analysis.
-- CSV exports for portfolio review and reproducibility.
-- Git/GitHub for version control and project presentation.
+---
 
-## Data Cleaning and Transformation Summary
+## Tools & Skills
 
-The SQL workflow creates a cleaned retail layer from the raw transaction table and then builds reporting-ready fact and dimension views.
+- **Google BigQuery / SQL** — data cleaning, transformation, aggregation, KPI preparation, and analytical queries.
+- **Power BI** — semantic modelling, interactive reporting, dashboard design, and visual analysis.
+- **DAX** — filter-aware measures, dynamic KPIs, labels, and reporting logic.
+- **Power Query** — report-layer data preparation.
+- **Git / GitHub** — version control and project documentation.
 
-- Converted invoice timestamps into transaction dates and reporting months.
-- Created `is_return` to identify negative quantity transactions.
-- Created `is_valid_sale` to identify positive quantity and positive price sales lines.
-- Standardised missing customer IDs to `UNKNOWN` in the sales-line fact.
-- Built customer and product dimensions from cleaned transaction data.
-- Created invoice-level net sales logic by aggregating revenue and units by invoice, month, and customer.
-- Segmented invoices as `B2B` or `Retail` using an invoice revenue threshold of GBP 50,000.
-- Excluded reference stock codes from selected product concentration analysis where the SQL joins to `ref_excluded_stockcode`.
+---
 
-More detail is available in [docs/data_cleaning_steps.md](docs/data_cleaning_steps.md).
+## Data Preparation & Transformation
 
-## Data Model Summary
+The SQL workflow transforms raw transaction data into reporting-ready analytical tables.
 
-The project follows a simple analytics model designed for dashboard reporting:
+Key preparation steps include:
 
-- `uk_retail_cleaned`: cleaned transaction layer derived from the raw BigQuery table.
-- `fact_sales_line`: invoice-line fact table used for return analysis and detailed sales reporting.
-- `fact_sales_net`: net sales fact table used for revenue, order, customer, and product analysis.
-- `fact_invoice_net`: invoice-level aggregation used for order value and segmentation.
-- `dim_customer`: customer lookup with country.
-- `dim_product`: product lookup with stock code and description.
-- `dim_invoice_segment`: invoice-level segment classification.
-- KPI and analytics views: monthly summary, repeat rate, return rate, B2B share, product Pareto, customer ranking, and top product contribution.
+- Converted invoice timestamps into reporting dates and months.
+- Identified return transactions using negative quantities.
+- Created valid-sale logic for positive quantity and positive price transactions.
+- Standardised missing customer IDs as `UNKNOWN` where appropriate.
+- Built customer and product dimensions.
+- Aggregated invoice-level revenue and units.
+- Created monthly KPI datasets for revenue, orders, customers, units, and AOV.
+- Calculated same-month repeat purchase rates.
+- Calculated monthly return metrics.
+- Built product and customer revenue concentration datasets.
+- Created Top 10 product contribution analysis.
+- Excluded selected reference stock codes from product concentration analysis where appropriate.
+
+Detailed methodology is available in
+[docs/data_cleaning_steps.md](docs/data_cleaning_steps.md).
+
+---
+
+## Data Model
+
+The reporting model separates transactional, dimensional, and analytical reporting layers.
+
+### Core tables
+
+- `uk_retail_cleaned` — cleaned transaction layer.
+- `fact_sales_line` — invoice-line fact table used for detailed sales and return analysis.
+- `fact_sales_net` — net sales fact table used for commercial analysis.
+- `fact_invoice_net` — invoice-level aggregation.
+- `dim_customer` — customer dimension.
+- `dim_product` — product dimension.
+
+### Power BI reporting model
+
+A dedicated `DimMonth` dimension provides a common time-filtering layer across monthly KPI tables.
+
+This enables the month slicer to consistently filter:
+
+- headline KPIs,
+- revenue and order trends,
+- return rates,
+- repeat purchase rates, and
+- monthly product concentration metrics.
+
+DAX measures are used for filter-aware KPI reporting and dynamic analytical labels.
+
+---
 
 ## KPI Definitions
 
-- Revenue: Sum of net sales revenue from `fact_sales_net`.
-- Orders: Count of distinct invoices after invoice-level aggregation.
-- Customers: Count of distinct known customers, excluding `UNKNOWN` where required by the KPI.
-- Units: Sum of item quantities.
-- Average Order Value (AOV): Revenue divided by orders.
-- Repeat Rate: Customers with at least two invoices in a month divided by total known customers in that month.
-- Return Rate by Amount: Returned revenue divided by sales revenue.
-- Return Rate by Orders vs Sales Orders: Return invoices divided by sales invoices.
-- Return Rate by Orders vs Total Orders: Return invoices divided by all invoices.
-- Top 10 Product Contribution: Revenue share contributed by the top 10 products in each month.
-- Product Revenue Concentration: Number and percentage of products required to reach approximately 80% of revenue.
-- Customer Revenue Concentration: Number and percentage of customers required to reach approximately 80% of revenue.
+- **Revenue** — net sales revenue.
+- **Orders** — invoice-level order count.
+- **Customers** — distinct known customers, excluding `UNKNOWN` where required.
+- **Units** — total item quantities.
+- **Average Order Value (AOV)** — Revenue / Orders.
+- **Same-Month Repeat Purchase Rate** — customers placing at least two invoices within a month divided by total known customers in that month.
+- **Return Rate** — returned revenue relative to sales revenue for the selected reporting definition.
+- **Top 10 Product Contribution** — revenue generated by the ten highest-revenue products as a percentage of total product revenue.
+- **Product Revenue Concentration** — percentage of products required to generate approximately 80% of revenue.
+- **Customer Revenue Concentration** — percentage of customers required to generate approximately 80% of known-customer revenue.
 
-Full definitions are documented in [docs/kpi_definitions.md](docs/kpi_definitions.md).
+Full KPI definitions are documented in
+[docs/kpi_definitions.md](docs/kpi_definitions.md).
 
-## Dashboard Overview
+---
 
-The Power BI dashboard contains four portfolio screenshots:
+## Dashboard
 
-- Executive Summary: high-level commercial performance view.
-- Overview: monthly revenue, orders, customers, units, AOV, repeat rate, and return rate.
-- Product Analysis: product ranking, top product contribution, and Pareto-style revenue concentration.
-- Customer Analysis: customer revenue distribution, ranking, and repeat purchase behaviour.
+The Power BI report contains four pages designed for different levels of analysis.
+
+### 1. Executive Summary
+
+A management-level summary of commercial performance, key findings, and business recommendations.
 
 ![Executive Summary](images/executive_summary.png)
 
-![Overview](images/overview.png)
+### 2. Sales Overview
+
+Tracks revenue, orders, customers, AOV, units, repeat purchase rate, and return rate over time.
+
+An interactive month slicer updates KPIs and supporting visuals through a shared month dimension.
+
+![Sales Overview](images/overview.png)
+
+### 3. Product Analysis
+
+Examines:
+
+- Top 10 revenue-generating products.
+- Individual product revenue contribution.
+- Product revenue concentration using Pareto analysis.
+- Monthly changes in Top 10 product revenue share.
 
 ![Product Analysis](images/product_analysis.png)
 
+### 4. Customer Analysis
+
+Examines:
+
+- Top 10 revenue-generating customers.
+- Customer revenue concentration using Pareto analysis.
+- Same-month repeat purchasing behaviour.
+- Monthly variation around the average repeat purchase rate.
+
 ![Customer Analysis](images/customer_analysis.png)
 
-## Key Insights
+---
 
-The following insights are based on the exported files currently available in this repository:
+## Key Findings
 
-- Analysed revenue in the customer ranking extract is GBP 17.74m.
-- Revenue shows clear seasonality, with stronger trading in the final quarter and a visible peak in November 2011 at GBP 1.51m.
-- Product revenue is concentrated: approximately 1,037 products out of 4,914 products, or 21.1%, contribute around 80% of product revenue.
-- The top 10 products contribute 8.0% of product revenue in the product Pareto export.
-- Customer revenue is concentrated: approximately 1,352 customers out of 5,878 customers, or 23.0%, contribute around 80% of known-customer revenue.
-- The average monthly repeat rate in the exported repeat-rate view is 23.8%.
-- B2B-segment invoices contribute 1.7% of invoice revenue in the invoice segment export.
-- Returns vary by month, so both return revenue and return invoice rates should be tracked alongside sales performance.
+### Sales Seasonality
+
+Revenue strengthens consistently during **Q4**, with the strongest trading periods concentrated around year-end. This indicates a meaningful seasonal demand pattern that should be considered in inventory and operational planning.
+
+### Product Concentration
+
+Approximately **22% of products generate 80% of product revenue**, indicating moderate product concentration.
+
+The **Top 10 products contribute approximately 8.0%** of total product revenue, suggesting that revenue is not dependent on only a handful of individual SKUs.
+
+### Customer Concentration
+
+Approximately **23% of customers generate 80% of known-customer revenue**, indicating moderate customer concentration.
+
+The **Top 10 customers contribute approximately 15.9%** of customer revenue.
+
+### Repeat Purchasing
+
+The **same-month repeat purchase rate averages approximately 23.8%** across the analysed period.
+
+This provides a baseline for evaluating customer repeat behaviour and identifying opportunities for retention analysis.
+
+### Returns
+
+Return rates are broadly stable across much of the period but include several notable monthly spikes.
+
+These periods warrant further investigation at product and operational level.
+
+---
 
 ## Business Recommendations
 
-- Prioritise availability, merchandising, and promotional planning for the highest-revenue products, as a small share of products drives most revenue.
-- Review long-tail products with low revenue contribution to identify candidates for range rationalisation, bundling, or targeted promotion.
-- Develop retention activity for repeat customers and high-value customers, as customer revenue is concentrated in a relatively small customer group.
-- Monitor return rate by month and product to identify quality, fulfilment, or product description issues that may be reducing net revenue.
-- Separate high-value invoice behaviour from typical retail behaviour in reporting, as B2B-style orders can distort average order value and monthly trends.
+Based on the analysis:
+
+1. **Plan inventory capacity ahead of Q4 demand peaks** to reduce the risk of stock constraints during the strongest trading periods.
+
+2. **Prioritise high-value products while avoiding excessive dependence on a small SKU group.**
+
+3. **Develop retention initiatives around high-value and repeat customers**, particularly given the concentration of revenue within a subset of the customer base.
+
+4. **Investigate months with unusually high return rates** to identify potential product, fulfilment, quality, or operational drivers.
+
+5. **Monitor product and customer concentration over time** rather than relying only on headline revenue growth, as changes in concentration may indicate emerging commercial risk.
+
+---
+
+## Dashboard Features
+
+The Power BI report includes:
+
+- Interactive month filtering.
+- Cross-table filtering through a shared `DimMonth` dimension.
+- Filter-aware KPI measures.
+- Dynamic analytical text and Pareto labels.
+- Product and customer Pareto analysis.
+- Average/reference lines for contextual comparison.
+- Conditional formatting and data bars for ranking tables.
+- Page navigation between executive, sales, product, and customer views.
+- Reset-filter functionality.
+- Management-level executive summary.
+
+---
 
 ## Limitations
 
-- The raw data source is not included in the repository.
-- The PBIX file contains the dashboard, but the exact Power BI data model relationships and DAX measures are not documented separately yet.
-- Some business context is unknown, including margin, marketing activity, stock availability, customer acquisition source, and fulfilment costs.
-- The B2B segment uses a simple invoice revenue threshold of GBP 50,000 and should be validated with business rules before operational use.
-- Customer IDs marked as `UNKNOWN` are excluded from some customer KPIs, which affects repeat-rate and customer concentration analysis.
-- Some KPI values depend on exported CSV snapshots, so they should be refreshed if the SQL views are updated.
+- The dataset does not contain product cost or margin data, so profitability cannot be assessed.
+- Marketing activity and customer acquisition channels are unavailable.
+- Stock availability is unavailable, limiting analysis of lost sales and stock-outs.
+- Customer IDs marked as `UNKNOWN` are excluded from selected customer metrics.
+- Same-month repeat purchase rate measures repeat purchasing within a calendar month and should not be interpreted as a full customer retention rate.
+- Product categories are not available, limiting category-level analysis.
+- Historical business context behind unusual return or sales periods is unavailable.
+- The dataset represents historical transactions and is used as an analytical case study rather than a current trading report.
 
-More detail is available in [docs/limitations.md](docs/limitations.md).
+More detail is available in
+[docs/limitations.md](docs/limitations.md).
 
-## What I Would Improve Next
+---
 
-- Add a data dictionary covering each table, field, and business definition.
-- Document the Power BI model relationships and any DAX measures used in the PBIX.
-- Add automated data validation checks for row counts, date coverage, duplicate invoice lines, null customer IDs, negative quantities, and revenue reconciliation.
-- Add margin or profit analysis if cost data becomes available.
-- Add product category mapping to support category-level commercial recommendations.
-- Add customer cohort analysis to distinguish new, retained, and reactivated customers.
-- Publish an anonymised dashboard walkthrough or PDF export for recruiters who cannot open PBIX files.
+## Potential Extensions
 
-## Portfolio Audit Summary
+Future development could include:
 
-The project already includes a credible SQL-to-dashboard workflow, KPI views, exported data, screenshots, and a Power BI file. The main portfolio gaps before this update were documentation depth, business framing, KPI definitions, validation notes, limitations, and a change history.
+- Customer cohort and retention analysis.
+- New vs retained vs reactivated customer segmentation.
+- Product category mapping.
+- Margin and profitability analysis if cost data becomes available.
+- Return-rate drill-down by product and customer.
+- Automated data-quality validation.
+- Additional dashboard accessibility features and report tooltips.
+- Deployment through Power BI Service where appropriate.
 
-The new `docs/` folder and `CHANGELOG.md` address those gaps. Remaining items to add manually are listed in the README sections above and in the supporting documentation.
+---
+
+## Repository Structure
+
+```text
+uk-retail-analytics-dashboard/
+│
+├── data/
+│   └── processed/
+│
+├── docs/
+│   ├── business_problem.md
+│   ├── dashboard_guide.md
+│   ├── data_cleaning_steps.md
+│   ├── data_validation.md
+│   ├── insights_and_recommendations.md
+│   ├── kpi_definitions.md
+│   └── limitations.md
+│
+├── images/
+│   ├── executive_summary.png
+│   ├── overview.png
+│   ├── product_analysis.png
+│   └── customer_analysis.png
+│
+├── powerbi/
+│   └── uk_online_retail.pbix
+│
+├── sql/
+│
+├── CHANGELOG.md
+└── README.md
 
 ## Author
 
