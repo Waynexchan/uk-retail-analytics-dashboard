@@ -8,6 +8,14 @@ The analysis covers approximately **£21.0M in revenue, 40.1K orders, and 5.9K c
 
 ---
 
+## Open the report
+
+- [Executive summary preview](images/executive_summary.png)
+- [Power BI report](powerbi/UK_Retail_Analytics_Report.pbix)
+- [SQL pipeline overview](sql/README.md)
+
+To inspect the report, download the PBIX and open it in Power BI Desktop. To rerun the pipeline, obtain the original Online Retail II source separately, load it into your own BigQuery dataset and adjust the table references in the scripts. Run the staging, warehouse and mart stages in that order. The fourth SQL folder contains supplementary analysis. For a local refresh, point the Power Query sources to your CSV exports, or use the [existing processed exports](data/processed/). The historical results describe this dataset.
+
 ## Business Problem
 
 The objective of this project is to help a commercial team understand:
@@ -43,7 +51,7 @@ The final output is an interactive four-page Power BI dashboard designed to tran
 - **Transaction lines:** 1,061,164 rows in the exported sales-line fact dataset.
 - **Main fields:** Invoice, Invoice Date, Customer ID, Country, Stock Code, Product Description, Quantity, Price, Revenue, Return Flag, and Valid Sale Flag.
 - **Reporting layer:** SQL-generated analytical tables exported for Power BI.
-- **Power BI report:** `powerbi/uk_online_retail.pbix`
+- **Power BI report:** `powerbi/UK_Retail_Analytics_Report.pbix`
 
 The raw source dataset is not included in the repository.
 
@@ -292,7 +300,7 @@ uk-retail-analytics-dashboard/
 │   └── customer_analysis.png
 │
 ├── powerbi/
-│   └── uk_online_retail.pbix
+│   └── UK_Retail_Analytics_Report.pbix
 │
 ├── sql/
 │
